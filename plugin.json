@@ -1,0 +1,18 @@
+{
+  "name": "namuk-process",
+  "version": "0.1.0",
+  "description": "Structure development work from request through implementation and verification.",
+  "author": {
+    "name": "Local developer"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Namuk Process",
+    "shortDescription": "A clear workflow for development tasks.",
+    "longDescription": "Helps break development requests into repository inspection, focused changes, and appropriate verification.",
+    "developerName": "Local developer",
+    "category": "Productivity",
+    "capabilities": [],
+    "defaultPrompt": "Structure this development task with Namuk Process."
+  }
+}
