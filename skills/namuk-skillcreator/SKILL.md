@@ -26,6 +26,6 @@ description: Namuk Process에 새 스킬이 필요한지 판단하고 설계·�
 
 생성 담당자는 skill-refer.md에 목적·기능·사용 시점·제외 범위·입출력과 연결 관계를 갱신한다. manifest, YAML frontmatter, 이름·폴더 일치, 설명 길이, 참조 경로와 diff를 확인하고 사용 가능한 validator 및 `git diff --check`를 실행한다.
 
-새 스킬 생성은 [verify-improvement](../verify-improvement/SKILL.md)의 기준으로 비교 검증 대상인지 구분한다. 현재는 실제 비교를 실행하지 않고 제출 흐름으로 진행한다. 기본 형식 검사는 기록하되 행동 검증이라고 부르지 않는다.
+새 스킬 생성은 [verify-improvement](../verify-improvement/SKILL.md)에 독립 비교 검증을 맡긴다. 기존본에 해당 스킬이 없어도 같은 사용자 요청을 수행시켜 비교한다. 검증 담당자는 판정과 근거만 반환한다. 형식 검사를 행동 검증이라고 부르지 않는다.
 
-reflect에서 위임받았다면 생성 이유, 변경 파일, 기능 문서 갱신, 기본 검사와 생략한 비교 검증을 반환한다. 직접 호출됐다면 생성 담당자가 작업을 끝까지 관리한다. 제출 범위인 경우 [submit-improvement](../submit-improvement/SKILL.md)에 제출을 위임하고 결과를 회수한다. 로컬 생성만 요청된 작업은 제출하지 않는다.
+reflect에서 위임받았다면 생성 이유, 변경 파일, 기능 문서 갱신, 검증 결과와 한계를 반환한다. 직접 호출됐다면 생성 담당자가 작업을 끝까지 관리하며 판정에 따라 채택·수정·미채택을 결정한다. 제출 범위인 경우 [submit-improvement](../submit-improvement/SKILL.md)에 제출을 위임하고 결과를 회수한다. 로컬 생성·검증만 요청된 작업은 제출하지 않는다.
