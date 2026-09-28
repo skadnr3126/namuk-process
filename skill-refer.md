@@ -9,6 +9,7 @@
 | [namuk-skillcreator](skills/namuk-skillcreator/SKILL.md) | 새 스킬의 필요성을 판단하고 작게 설계·작성. 분리 생성에 필요한 기존 경계도 조정 | 일반적인 기존 스킬 수정, 자체 개선 판정, 직접 PR 제출 | 새 스킬·생성 이유·갱신된 기능 문서·검증 결과 |
 | [verify-improvement](skills/verify-improvement/SKILL.md) | 어떤 변경이 비교 검증 대상으로 넘어가는지 구분하는 기준 보관 | 현재는 실제 비교 실행, 소스 수정·되돌리기·병합·PR 제출 | 검증 대상 여부만 판단. 실행은 보류 |
 | [submit-improvement](skills/submit-improvement/SKILL.md) | 변경을 커밋·push하고 draft PR 제출. 미실행 검증은 한계로 기록 | 개선 설계·수정, 검증 결과 작성, 자동 병합·설치 업데이트 | 확인된 PR 링크 또는 제출 장애 |
+| [workflow-test-empty](skills/workflow-test-empty/SKILL.md) | 플러그인 생성·제출 흐름을 확인하기 위한 테스트 전용 스킬 | 의도적으로 동작과 실행 지침 없음 | 없음 |
 
 ## 작업 연결
 
