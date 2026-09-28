@@ -1,31 +1,39 @@
 ---
 name: submit-improvement
-description: Capture a concrete improvement discovered while using Namuk Process and route it to the plugin source repository. Use when the user asks to send feedback or when a reusable weakness in this plugin's workflow becomes clear.
+description: Namuk Process의 스킬 추가, 기능 변경, 버그 수정, 문서·설정 변경을 확인하고 커밋·push한 뒤 맥락과 검증 결과를 담은 draft PR을 만든다. 사용자가 플러그인 변경의 PR 제출을 요청하거나 reflect 등 다른 작업 흐름이 준비된 변경을 넘겼을 때 사용한다.
 ---
 
-# Submit a Namuk Process improvement
+# 플러그인 변경사항 PR 제출
 
-Use this workflow when the user asks to report an improvement, or when using Namuk Process reveals a repeatable gap in its workflow. Do not interrupt the current task for speculative ideas; mention them briefly and let the user decide whether to capture one.
+이 스킬은 준비된 플러그인 변경의 제출을 담당한다. 변경은 사용자의 직접 작업, 기능 구현, 버그 수정, 문서·설정 정리, reflect 등에서 올 수 있다. reflect 실행이나 회고 결과를 필수 조건으로 요구하지 않는다. 소스 수정과 변경에 맞는 검증은 해당 작업 흐름에서 수행하고, 여기서는 제출 범위와 검증 기록을 확인한다. 사용자가 보고만 요청하거나 전송 범위를 제한하면 그 범위를 따른다.
 
-1. Describe the observed friction with evidence from the current task. Separate the observation from the proposed change.
-2. Keep the proposal focused on improving Namuk Process itself. Do not include unrelated project code, secrets, credentials, or private user data.
-3. The plugin repository is `skadnr3126/namuk-process`. Look for its source checkout by locating `.codex-plugin/plugin.json` with `name: namuk-process`; use it only if it is a Git worktree whose remote points to that repository. Never edit an installed or cached copy of the plugin.
-4. When the user explicitly asks to send the improvement and the source checkout is available, make the smallest relevant plugin change, validate its manifest and skill files, review the diff, then create a branch and draft pull request.
-5. If there is no source checkout but a GitHub connection is available, inspect the current repository files, create a branch, apply the smallest relevant plugin change, validate the changed content, and create a draft pull request. Keep the report free of unrelated project code, secrets, credentials, and private user data.
-6. If neither the source checkout nor a GitHub connection is available, return a ready-to-file proposal and say that it was not sent:
+## 실행 담당
 
-```markdown
-## Observed friction
-[What happened and where]
+메인에서 직접 호출하면 서브에이전트 하나에 제출을 맡긴다. 소스·worktree 경로, 원격 저장소, base와 head, 제출할 파일·커밋, 변경 목적과 배경, 검증 결과·미확인 항목, 사용자 제한을 전달한다. 이미 reflect나 다른 작업을 맡은 서브에이전트가 실행 중이면 그 담당자가 제출까지 수행한다. 추가 제출 에이전트를 만들거나 reflect를 다시 호출하지 않는다.
 
-## Evidence
-[Concrete example, without private project data]
+제출 담당자만 해당 worktree와 브랜치에 쓰도록 소유권을 정한다. 다른 작업자도 저장소를 사용하므로 타인의 변경을 되돌리지 않는다. 메인은 제출 대상 파일을 동시에 수정하지 않고 독립적인 작업을 계속한다. 전용 worktree가 이미 있으면 재사용한다. 공유 작업 트리에서 넘겨받을 때는 별도 worktree로 지정된 커밋이나 변경분만 옮기고 원본은 보존한다. 미커밋·미추적 파일도 제출 범위에 포함되었는지 확인하며, 구분할 수 없으면 임의 복사·stage하지 않는다. 모든 Git 명령은 담당 worktree 경로를 명시해 실행한다.
 
-## Proposed plugin change
-[Small change to a Namuk Process instruction or workflow]
+완료 시 변경 요약, worktree·브랜치, 검증 상태와 한계, 확인된 PR URL을 메인에 반환한다. 막히면 완료 단계와 장애를 반환한다. 메인은 결과를 회수해 사용자에게 전달한다. 서브에이전트를 사용할 수 없으면 제한을 알리고 메인이 같은 절차를 수행한다.
 
-## Acceptance check
-[How a user can tell the change helped]
-```
+## 제출할 변경 확인
 
-Do not claim a proposal was sent unless it was added to the source repository or submitted to its configured remote.
+전달받은 소스 또는 worktree 경로, 원격 저장소, base와 head, 변경 파일 목록, 변경 목적과 이유, 검증 결과와 미확인 항목을 확인한다. 직접 호출된 경우 현재 대화와 Git 상태에서 같은 정보를 확인한다. 기본 소스 경로는 `D:\Plugin\namuk-process`이며 별도 worktree에서 작업했다면 그 경로를 사용한다. 변경이 없으면 빈 PR을 만들지 않고, 아이디어만 있다면 먼저 수정·검증이 필요함을 알린다. 검증 기록이 없으면 결과를 만들어내지 말고 미검증으로 표시한다.
+
+base는 사용자나 호출한 작업 흐름이 지정한 브랜치를 사용하고, 별도 지정이 없으면 `reflect-review`를 사용한다. head는 이번 변경이 담긴 별도 브랜치이며 `reflect/` 접두사를 요구하지 않는다. 아직 변경 브랜치가 없으면 현재 변경을 보존해 `change/<주제>-<고유값>` 브랜치를 만든다. PR에 포함될 전체 diff와 커밋을 base와 비교해 무관한 변경이 섞이지 않았는지 확인한다.
+
+작업 경로가 namuk-process 소스의 Git worktree인지, manifest의 이름이 namuk-process이고 origin이 skadnr3126/namuk-process인지 확인한다. 설치본·캐시에서는 실행하지 않는다. 이번 변경과 사용자 기존 변경을 구분할 수 없으면 임의로 묶어 커밋하지 않는다.
+
+## PR 제출과 사후 검토
+
+diff에서 범위와 민감정보를 확인하고 `git diff --check`를 실행한 뒤 이번 변경 파일만 명시적으로 stage하여 커밋한다. 이미 커밋된 변경은 중복 커밋하지 않는다. 같은 head의 열린 PR을 확인한다. 기존 PR이 있으면 대상 브랜치가 일치하는지 확인하고 해당 PR을 갱신하며 중복 생성하지 않는다. 변경 브랜치(head)를 push한 뒤 정한 대상 브랜치(base)로 draft PR을 만든다. base와 head는 서로 달라야 한다. 대상 브랜치가 원격에 없으면 생성 기준을 확인하고, `main`으로 임의 대체하지 않는다. 별도의 수정안 승인 단계는 두지 않는다. 실행 환경의 권한 요청이 필요하면 해당 작업에 한해 요청한다.
+
+PR만 읽어도 판단하도록 다음 내용을 남긴다.
+
+- 목적과 배경: 어떤 요청이나 필요로 변경했는지. 버그 수정이면 증상과 재현 조건, 기능 추가면 사용 목적, reflect에서 왔다면 피드백과 관찰 결과를 적는다. 대화 전문 대신 필요한 맥락만 익명화한다.
+- 변경: 무엇을 추가·수정·삭제했고 다음에는 어떤 행동이 달라지는지.
+- 검증: 실행한 명령 또는 테스트 요청, 예상 결과, 실제 결과, 재현 방법. 전후 비교 시 각각의 소스 기준도 적는다.
+- 한계: 실행하지 못한 검사, 남은 불확실성, 사용자가 검토할 판단.
+
+GitHub CLI 사용 시 PR 본문을 UTF-8 파일로 쓰고 `gh pr create --draft --base <대상 브랜치> --head <변경 브랜치> --title <제목> --body-file <파일>`로 제출한다. PR URL과 대상 브랜치를 조회해 제출을 확인한다. push 성공만으로 PR을 만들었다고 보고하지 않는다.
+
+채팅에는 변경 요약, 검증 상태, PR 링크만 짧게 알린다. 제출이 막히면 완료·실패한 단계와 로컬 변경 위치를 알리고 재시도 시 기존 브랜치·PR을 확인한다. 자동 병합이나 설치본 업데이트는 하지 않는다. 사용자가 검토·병합한 뒤 업데이트를 요청하면 별도로 진행한다.
