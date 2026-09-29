@@ -8,7 +8,7 @@
 | [reflect](skills/reflect/SKILL.md) | 대화·사용 경험에서 개선 근거를 찾아 기존 지침을 수정·삭제하고, 별도 제한이 없으면 검증과 PR 제출까지 관리 | 새 스킬의 직접 작성, 독립 검증, 직접 PR 제출 | 변경과 검증 결과, 제출 담당의 완료 결과 |
 | [namuk-skillcreator](skills/namuk-skillcreator/SKILL.md) | 새 스킬의 필요성을 판단하고 작게 설계·작성. 분리 생성에 필요한 기존 경계도 조정 | 일반적인 기존 스킬 수정, 자체 개선 판정, 직접 PR 제출 | 새 스킬·생성 이유·갱신된 기능 문서·검증 결과 |
 | [verify-improvement](skills/verify-improvement/SKILL.md) | 동작을 바꾸는 AI 변경을 분리된 환경에서 블라인드 비교하고 [평가 지침](skills/verify-improvement/references/evaluation-agent.md)을 적용 | 의미와 동작이 그대로인 표현 수정의 비교, 소스 수정·change 삭제·병합·PR 제출 | 관찰 근거·판정·한계; 후속 작업은 공통 변경 절차를 적용 |
-| [submit-improvement](skills/submit-improvement/SKILL.md) | 개선 판정의 커밋을 push하고 draft PR 제출 후 로컬 change 정리 | 개선 설계·수정, 검증 결과 작성, 자동 병합·설치 업데이트 | 확인된 PR 링크 또는 제출 장애 |
+| [submit-improvement](skills/submit-improvement/SKILL.md) | 개선 판정의 커밋을 push하고 draft PR 제출 후 main으로 복귀 | 개선 설계·수정, 검증 결과 작성, 자동 병합·설치 업데이트 | 확인된 PR 링크 또는 제출 장애 |
 
 ## 작업 연결
 
@@ -30,13 +30,13 @@
 
 | 판정 | 후속 작업과 담당 |
 |---|---|
-| 개선 | 변경 담당자가 submit-improvement에 위임. 제출 담당자가 원본에서 base `main`으로 draft PR을 만들고 원격 커밋·PR URL을 확인한 뒤 main 복귀 및 로컬 change 삭제 |
-| 회귀 / 차이 없음 | 변경 담당자가 근거를 보존하고 이번 작업만 담겼는지 확인한 뒤 원본에서 main 복귀 및 로컬 change 삭제. PR을 만들지 않음 |
+| 개선 | 변경 담당자가 submit-improvement에 위임. 제출 담당자가 원본에서 base `main`으로 draft PR을 만들고 원격 커밋·PR URL을 확인한 뒤 로컬 change를 보존한 채 main으로 복귀 |
+| 회귀 / 차이 없음 | 변경 담당자가 근거를 보존하고 이번 작업의 변경만 안전하게 정리한 뒤 main으로 복귀한다. change에 다른 미제출 작업이 있으면 브랜치를 보존한다. PR을 만들지 않음 |
 | 판단 불가 / 실행·제출 실패 | change와 필요한 증거를 보존하고 완료 단계·장애 보고. 실패를 미채택 판정으로 바꾸지 않음 |
 
-로컬 change 삭제 전 원본이 깨끗한지, 다른 worktree가 사용하지 않는지, 이번 작업 외 커밋이 없는지 확인한다. 기록한 커밋 ID와 현재 change가 일치할 때만 `git switch main` 후 삭제한다. 미병합이라 일반 삭제가 거절되면 이 확인을 마친 이번 작업의 change에 한해서 `git branch -D change`를 사용한다. 예상 밖 상태에서는 보존·보고한다. 원본 worktree는 삭제하지 않는다.
+로컬 change는 PR 제출 성공 후에도 삭제하지 않는다. 원본이 깨끗한지 확인한 뒤 브랜치를 보존하고 main으로 복귀한다. 회귀·차이 없음으로 브랜치를 정리할 때는 change에 이번 작업 외 미제출 변경이 없는지 먼저 확인한다. 다른 작업이 남았거나 구분할 수 없으면 브랜치 전체를 삭제하지 말고 보존·보고한다. 이번 작업만 담겼고 원본이 깨끗하며 다른 worktree가 사용하지 않을 때만 main으로 복귀한 뒤 로컬 change를 삭제한다. 원본 worktree는 삭제하지 않는다.
 
-PR의 원격 head는 `change/<주제>-<고유값>`으로 로컬 고정 이름과 분리한다. PR이 열려 있는 동안 원격 head를 유지하므로 로컬 change를 삭제해도 PR은 보존된다. 다음 개선은 다시 main에서 로컬 change를 만든다. 자동 병합이나 기존 설치 업데이트는 하지 않는다.
+PR의 원격 head는 `change/<주제>-<고유값>`으로 로컬 고정 이름과 분리한다. 로컬 change는 미제출 커밋을 보존하고 다음 변경을 이어가기 위해 유지한다. PR의 원격 head는 PR이 열린 동안 보존한다. 자동 병합이나 기존 설치 업데이트는 하지 않는다.
 
 ## 검증 수준과 역할 분리
 
@@ -44,4 +44,4 @@ PR의 원격 head는 `change/<주제>-<고유값>`으로 로컬 고정 이름과
 
 ## 로컬 원본에서 PR까지
 
-원본에서 수정 전 change 준비 → 변경·형식 검사·커밋 고정 → 요청 당시 작업폴더의 두 worktree와 별도 로컬 설치로 서브에이전트 비교 → 근거 보존과 시험 환경 정리 → 판정에 따른 PR 제출·로컬 change 삭제 또는 실패 상태 보존. 상세 조건은 위 공통 변경 절차를 따른다.
+원본에서 수정 전 change 준비 → 변경·형식 검사·커밋 고정 → 요청 당시 작업폴더의 두 worktree와 별도 로컬 설치로 서브에이전트 비교 → 근거 보존과 시험 환경 정리 → 판정에 따른 PR 제출과 change 보존 또는 미채택 변경 정리. 상세 조건은 위 공통 변경 절차를 따른다.

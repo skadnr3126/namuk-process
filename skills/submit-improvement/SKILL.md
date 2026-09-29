@@ -40,6 +40,6 @@ PR만 읽어도 판단하도록 다음 내용을 남긴다.
 
 GitHub CLI 사용 시 PR 본문을 UTF-8 파일로 쓰고 `gh pr create --draft --base <대상 브랜치> --head <원격 head> --title <제목> --body-file <파일>`로 제출한다. PR URL과 대상 브랜치를 조회해 제출을 확인한다. push 성공만으로 PR을 만들었다고 보고하지 않는다.
 
-원격 head의 커밋과 PR의 base·head·URL을 확인한 뒤 [공통 변경 절차](../../skill-refer.md#공통-변경-절차)의 안전 조건에 따라 원본에서 main으로 복귀하고 로컬 change를 삭제한다. PR이 병합될 때까지 로컬 change를 유지하지 않는다. 원본 worktree와 열린 PR의 원격 head는 보존한다. push·PR 확인·정리 실패 또는 예상 밖 미커밋 변경이 있으면 강제로 진행하지 않고 상태와 장애를 보고한다. 검증 worktree와 시험용 설치 정리는 verify-improvement가 맡는다.
+원격 head의 커밋과 PR의 base·head·URL을 확인한 뒤 원본에서 main으로 복귀한다. PR 제출이 성공해도 로컬 change는 삭제하지 않는다. 미제출 작업이 남아 있을 수 있으므로 브랜치를 보존한다. 원본 worktree와 열린 PR의 원격 head도 보존한다. push·PR 확인 실패 또는 예상 밖 미커밋 변경이 있으면 강제로 진행하지 않고 상태와 장애를 보고한다. 검증 worktree와 시험용 설치 정리는 verify-improvement가 맡는다.
 
 채팅에는 변경 요약, 검증 상태, PR 링크만 짧게 알린다. 제출이 막히면 완료·실패한 단계와 로컬 변경 위치를 알리고 재시도 시 기존 브랜치·PR을 확인한다. 자동 병합이나 설치본 업데이트는 하지 않는다. 사용자가 검토·병합한 뒤 업데이트를 요청하면 별도로 진행한다.
