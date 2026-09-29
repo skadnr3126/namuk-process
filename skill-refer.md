@@ -2,6 +2,8 @@
 
 이 문서는 Namuk Process의 전체 기능, 책임 경계, 연결 관계를 안내한다. 상세 실행 절차는 각 `SKILL.md`에서 관리한다. 스킬을 변경한 담당자가 이 문서도 같은 변경에 포함하고, 검증 담당자는 실제 지침과 일치하는지 확인한다.
 
+`namuk-skillcreator`, `reflect`, `verify-improvement`, `submit-improvement`는 Namuk Process 플러그인 자체를 개선할 때만 사용한다. 사용자의 일반 프로젝트 구현이나 개인 작업 워크플로우를 처리하는 스킬이 아니다.
+
 | 스킬 | 사용 시점과 기능 | 책임에서 제외되는 일 | 전달 결과 |
 |---|---|---|---|
 | [thought-to-output](skills/thought-to-output/SKILL.md) | 생각·목표·방향을 구체화할 때 사용자 원칙을 상기시키고 현재 판단에 적용 | 원칙의 영구 수정, 개선 작업 관리 | 명확해진 의도·목표·다음 행동 |
@@ -20,7 +22,7 @@
 
 ## 공통 변경 절차
 
-이 절차는 모든 AI 플러그인 변경에 적용한다. 각 스킬은 브랜치·검증·정리 절차를 별도로 정의하지 않고 이 절차를 따른다.
+이 절차는 Namuk Process 플러그인 자체의 모든 변경에 적용한다. 각 스킬은 브랜치·검증·정리 절차를 별도로 정의하지 않고 이 절차를 따른다.
 
 1. 원본 `C:\Users\workspace\.agents\plugins\namuk-process`의 Git 루트, manifest 이름 `namuk-process`, origin `skadnr3126/namuk-process`를 확인한다. 요청 당시 작업폴더는 별도로 기록해 검증 worktree의 부모 경로로 전달한다. 설치 캐시나 검증 worktree를 수정 원본으로 사용하지 않는다.
 2. **파일 수정 전에** 원본의 Git 상태와 담당자를 확인한다. 로컬 브랜치는 항상 `change`다. 없으면 깨끗한 `main`에서 `git switch -c change main`으로 생성한다. 이미 있으면 다른 worktree나 담당자가 사용 중인지 확인하고 `git switch change`로 이어 쓴다. 현재 `change` tip을 이번 작업의 기준본으로 기록해 이전 커밋을 보존한다. 미커밋·미추적 사용자 변경을 섞거나 자동 stash/reset하지 않는다. 안전하게 전환할 수 없으면 보존하고 중단한다.
