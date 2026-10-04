@@ -1,18 +1,18 @@
 {
   "name": "namuk-process",
   "version": "0.1.0",
-  "description": "Validate user requests against intent, project context, and desired outcomes.",
+  "description": "Turn user intent into verifiable requests, apply consistent codebase design, and check results against completion criteria.",
   "author": {
     "name": "Local developer"
   },
   "skills": "./skills/",
   "interface": {
     "displayName": "Namuk Process",
-    "shortDescription": "Help turn intent into actionable requests.",
-    "longDescription": "Checks request clarity, relevant code and environment context, and alignment between the requested action and the user's goal. Uses only the checks needed for the situation.",
+    "shortDescription": "Connect intent, design, implementation, and verification.",
+    "longDescription": "Clarifies intent and completion criteria, selects only the needed request checks, applies codebase-design during design and implementation, and verifies actual results against the original criteria.",
     "developerName": "Local developer",
     "category": "Productivity",
     "capabilities": [],
-    "defaultPrompt": "Check this request for clarity, project context, and alignment with my goal."
+    "defaultPrompt": "Use development-workflow to understand my intent and completion criteria, select the needed request checks, design and implement with codebase-design, and verify the results against those criteria."
   }
 }

@@ -16,6 +16,8 @@ Use [codebase-design](../codebase-design/SKILL.md) for the architecture vocabula
 
 Reuse the user's objective, constraints, and delegation already established in the conversation. A review or advice request ends with findings; it does not authorize source edits. An implementation request authorizes routine design and code choices within its scope.
 
+Define observable completion criteria from that objective before implementation. Reuse criteria already established in the conversation and investigate facts directly; ask only about missing user intent that would change the result.
+
 Inspect the relevant source, data structures, state ownership, affected callers, dependencies, and tests. Read existing domain documentation and ADRs in the area. If the user named a module or pain point, start there. Otherwise, use recent Git history and observable architectural friction to focus the investigation. Scale the investigation to the likely change.
 
 Determine whether these facts support an improvement within the delegated scope. If a material gap remains, use the relevant [clarity](../verify-request-clarity/SKILL.md), [context](../verify-request-context/SKILL.md), or [alignment](../verify-request-alignment/SKILL.md) check. Reuse information already known; these checks are not a mandatory sequence.
@@ -43,3 +45,5 @@ Update existing domain documentation directly when the accepted change makes its
 Exercise the affected behaviour through the module's interface or the user's workflow. Run relevant existing tests and the project's required checks, scaled to the change. If a check fails, investigate and fix the cause within the selected scope, then rerun it. A build alone does not demonstrate that the affected behaviour works.
 
 Inspect the final diff and references to replaced modules. Report the actual changes, affected callers, verification results, and any checks that could not be run. Distinguish source or unit evidence from real application or external-system verification. Describe the improvement as verified only to the extent supported by those results.
+
+Check that the final implementation follows the selected responsibility, interface, and dependency design. Compare each original completion criterion with actual evidence and report it as met, unmet, or unverified. Do not lower the criteria to fit the implementation.
