@@ -1,49 +1,49 @@
 ---
 name: improve-codebase-architecture
-description: Inspect a codebase, choose worthwhile architecture improvements within the user's delegated scope, then design, implement, and verify them.
+description: 사용자가 위임한 범위에서 코드베이스를 조사하고 유효한 구조 개선을 선택한 뒤 설계·구현·검증한다.
 disable-model-invocation: true
 ---
 
-# Improve codebase architecture
+# 코드베이스 구조 개선
 
-Improve the user's codebase within the scope they delegated. This skill owns investigation, design, code changes, and verification. The aim is testability and AI-navigability through deeper modules, greater locality, and simpler interfaces.
+사용자가 위임한 범위에서 코드베이스를 개선한다. 이 스킬은 조사·설계·코드 수정·검증을 담당한다. 깊은 모듈, 한곳에 모인 변경, 단순한 인터페이스를 통해 테스트와 인공지능의 코드 이해를 쉽게 만든다.
 
-Use [codebase-design](../codebase-design/SKILL.md) for the architecture vocabulary and design principles. Use the project's existing domain terms and design decisions when naming modules and choosing seams.
+설계 용어와 원칙은 [코드베이스 설계](../codebase-design/SKILL.md)를 따른다. 모듈 이름과 교체 지점을 정할 때는 프로젝트의 기존 도메인 용어와 설계 결정을 활용한다.
 
-## Process
+## 절차
 
-### 1. Establish the goal, scope, and actual context
+### 1. 목표·범위·실제 맥락 확인
 
-Reuse the user's objective, constraints, and delegation already established in the conversation. A review or advice request ends with findings; it does not authorize source edits. An implementation request authorizes routine design and code choices within its scope.
+대화에서 이미 확보한 목표·제약·위임 범위를 재사용한다. 검토나 조언 요청은 조사 결과를 반환하는 것으로 마치며 코드 수정 권한을 뜻하지 않는다. 구현 요청은 해당 범위의 통상적인 설계·코드 선택을 허용한다.
 
-Define observable completion criteria from that objective before implementation. Reuse criteria already established in the conversation and investigate facts directly; ask only about missing user intent that would change the result.
+구현 전에 목표에서 관찰 가능한 완료 기준을 정한다. 이미 확보한 기준은 재사용하고 조사할 수 있는 사실은 직접 확인한다. 결과를 바꾸는 사용자 의도가 빠졌을 때만 질문한다.
 
-Inspect the relevant source, data structures, state ownership, affected callers, dependencies, and tests. Read existing domain documentation and ADRs in the area. If the user named a module or pain point, start there. Otherwise, use recent Git history and observable architectural friction to focus the investigation. Scale the investigation to the likely change.
+관련 소스·자료구조·상태 소유권·호출부·의존성·테스트를 확인한다. 해당 영역의 도메인 문서와 설계 결정 기록을 읽는다. 사용자가 모듈이나 문제 지점을 지정했다면 그곳부터 확인한다. 지정하지 않았다면 최근 변경 이력과 관찰할 수 있는 구조상의 문제를 근거로 조사 범위를 정한다. 변경 규모에 맞춰 조사한다.
 
-Determine whether these facts support an improvement within the delegated scope. If a material gap remains, use the relevant [clarity](../verify-request-clarity/SKILL.md), [context](../verify-request-context/SKILL.md), or [alignment](../verify-request-alignment/SKILL.md) check. Reuse information already known; these checks are not a mandatory sequence.
+확인한 사실이 위임 범위 안의 개선을 뒷받침하는지 판단한다. 중요한 정보가 부족하면 해당하는 [명확성](../verify-request-clarity/SKILL.md), [맥락 적합성](../verify-request-context/SKILL.md), [문제와 수단의 일치](../verify-request-alignment/SKILL.md) 검증을 사용한다. 이미 아는 정보는 재사용하고 세 검증을 필수 순서로 실행하지 않는다.
 
-Ask only about unresolved choices that belong to the user and would change the desired outcome or behaviour. Investigate facts and resolve routine implementation choices directly. Pause only work that depends on a missing user decision. Once the goal, scope, and facts support implementation, continue without another approval step.
+사용자가 정해야 하고 원하는 결과나 동작을 바꾸는 미정 선택만 질문한다. 사실은 직접 조사하고 통상적인 구현 선택은 스스로 정한다. 빠진 사용자 결정에 의존하는 작업만 보류한다. 목표·범위·사실이 구현을 뒷받침하면 추가 승인 없이 진행한다.
 
-### 2. Choose a worthwhile improvement
+### 2. 유효한 개선 선택
 
-Choose a bounded target supported by the code and the user's goal. Look for a concept scattered across modules, callers carrying implementation details, shallow pass-through modules, or behaviour that is difficult to verify through the current interface. Use codebase-design's deletion test and evaluate depth, locality, and leverage.
+코드와 사용자 목표에 근거한 한정된 대상을 선택한다. 여러 모듈에 흩어진 개념, 구현 세부사항을 떠안은 호출부, 전달만 하는 얕은 모듈, 현재 인터페이스로 검증하기 어려운 동작을 찾는다. 코드베이스 설계의 모듈 삭제 가정을 적용하고 깊이·변경의 국소성·효용을 평가한다.
 
-Explain briefly which files and callers are involved, what concrete friction the change removes, and why it is worth doing. Select the target within the delegated scope and continue. If the investigation finds no justified improvement, report that finding instead of making speculative changes. If a proposed change conflicts with an ADR, establish why revisiting that decision is necessary before implementing it.
+관련 파일과 호출부, 제거할 구체적인 문제, 개선할 이유를 짧게 설명한다. 위임 범위 안에서 대상을 선택하고 진행한다. 근거 있는 개선을 찾지 못했다면 추측으로 수정하지 않고 조사 결과를 보고한다. 기존 설계 결정 기록과 충돌하는 제안이라면 왜 그 결정을 재검토해야 하는지 확인한 뒤 구현한다.
 
-### 3. Design and implement
+### 3. 설계와 구현
 
-Describe a short design using [codebase-design](../codebase-design/SKILL.md) and [DEEPENING.md](../codebase-design/DEEPENING.md). Include the module's responsibility and interface, seam placement, dependency handling, affected callers, and behaviour to preserve. If the user requests alternative interfaces, use [DESIGN-IT-TWICE.md](../codebase-design/DESIGN-IT-TWICE.md), then continue here with the chosen design.
+[코드베이스 설계](../codebase-design/SKILL.md)와 [모듈 심화](../codebase-design/DEEPENING.md)를 참고해 짧은 설계를 설명한다. 모듈의 책임과 인터페이스, 교체 지점의 위치, 의존성 처리, 영향을 받는 호출부, 유지할 동작을 포함한다. 사용자가 인터페이스 대안을 요청하면 [여러 방식으로 설계하기](../codebase-design/DESIGN-IT-TWICE.md)를 적용한 뒤 선택한 설계로 돌아와 진행한다.
 
-Implement the improvement in the user's project. Migrate affected callers with the interface change and remove replaced modules once their callers are migrated. Preserve existing behaviour unless the user requested a behaviour change. Preserve unrelated user edits and follow the project's conventions.
+사용자 프로젝트에 개선을 구현한다. 인터페이스를 변경할 때 관련 호출부를 함께 수정하고, 호출부를 옮긴 뒤 대체된 모듈을 제거한다. 사용자가 동작 변경을 요청하지 않았다면 기존 동작을 유지한다. 무관한 사용자 변경을 보존하고 프로젝트 규칙을 따른다.
 
-Before replacing or deleting tests, identify the behaviour they cover and retain equivalent coverage through the new interface. Preserve distinct scenarios that still matter. New tests should exercise observable outcomes through the interface rather than mirror the implementation.
+테스트를 대체하거나 삭제하기 전에 검증하던 동작을 확인하고 새 인터페이스에서 동등한 검증을 유지한다. 여전히 필요한 개별 사용 상황도 보존한다. 새 테스트는 구현을 그대로 따라 쓰기보다 인터페이스를 통해 관찰할 수 있는 결과를 확인한다.
 
-Update existing domain documentation directly when the accepted change makes its terms or decisions inaccurate. Use the project's glossary and ADR conventions. Create new documentation only when the change needs it or the user requests it.
+변경으로 기존 용어나 결정이 부정확해졌다면 해당 도메인 문서를 직접 갱신한다. 프로젝트의 용어집과 설계 결정 기록 규칙을 따른다. 새 문서는 변경에 필요하거나 사용자가 요청한 경우에만 만든다.
 
-### 4. Verify and report
+### 4. 검증과 보고
 
-Exercise the affected behaviour through the module's interface or the user's workflow. Run relevant existing tests and the project's required checks, scaled to the change. If a check fails, investigate and fix the cause within the selected scope, then rerun it. A build alone does not demonstrate that the affected behaviour works.
+모듈의 인터페이스나 사용자 흐름으로 영향을 받는 동작을 확인한다. 변경 규모에 맞춰 관련 기존 테스트와 프로젝트의 필수 검사를 실행한다. 검사가 실패하면 선택한 범위 안에서 원인을 조사·수정한 뒤 다시 확인한다. 빌드 성공만으로 실제 동작을 입증하지 않는다.
 
-Inspect the final diff and references to replaced modules. Report the actual changes, affected callers, verification results, and any checks that could not be run. Distinguish source or unit evidence from real application or external-system verification. Describe the improvement as verified only to the extent supported by those results.
+최종 변경 내역과 대체된 모듈의 참조를 확인한다. 실제 변경·영향받은 호출부·검증 결과·실행하지 못한 검사를 보고한다. 소스나 단위 테스트의 근거와 실제 앱이나 외부 시스템의 검증을 구분한다. 근거가 뒷받침하는 범위만 검증된 개선으로 설명한다.
 
-Check that the final implementation follows the selected responsibility, interface, and dependency design. Compare each original completion criterion with actual evidence and report it as met, unmet, or unverified. Do not lower the criteria to fit the implementation.
+최종 구현이 선택한 책임·인터페이스·의존성 설계를 따르는지 확인한다. 처음의 완료 기준마다 실제 근거를 대조하고 충족·미충족·미확인으로 보고한다. 구현에 맞춰 기준을 낮추지 않는다.

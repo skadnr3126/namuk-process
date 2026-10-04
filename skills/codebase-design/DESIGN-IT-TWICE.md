@@ -1,44 +1,44 @@
-# Design It Twice
+# 여러 방식으로 설계하기
 
-When the user wants to explore alternative interfaces for a chosen deepening candidate, use this parallel sub-agent pattern. Based on "Design It Twice" (Ousterhout): your first idea is unlikely to be the best.
+사용자가 선택한 모듈 심화 후보에 대해 인터페이스 대안을 탐색하려 할 때 병렬 서브에이전트를 사용한다. 첫 아이디어가 최선이 아닐 수 있다는 존 오스터하우트의 여러 번 설계하기 원칙을 따른다.
 
-Uses the vocabulary in [SKILL.md](SKILL.md): **module**, **interface**, **seam**, **adapter**, **leverage**.
+[코드베이스 설계](SKILL.md)의 모듈·인터페이스·교체 지점·어댑터·효용 용어를 사용한다.
 
-## Process
+## 절차
 
-### 1. Frame the problem space
+### 1. 문제와 제약 정리
 
-Before spawning sub-agents, write a user-facing explanation of the problem space for the chosen candidate:
+서브에이전트를 만들기 전에 선택한 후보의 문제와 제약을 사용자에게 설명한다.
 
-- The constraints any new interface would need to satisfy
-- The dependencies it would rely on, and which category they fall into (see [DEEPENING.md](DEEPENING.md))
-- A rough illustrative code sketch to ground the constraints, not a proposal, just a way to make the constraints concrete
+- 새 인터페이스가 충족해야 할 제약
+- 의존할 대상과 그 분류. [모듈 심화](DEEPENING.md)를 참고한다.
+- 제약을 구체적으로 보여 주는 간단한 코드 예시. 확정 설계안으로 제시하지 않는다.
 
-Show this to the user, then immediately proceed to Step 2. The user reads and thinks while the sub-agents work in parallel.
+사용자에게 설명한 뒤 바로 다음 단계로 진행한다. 사용자가 내용을 읽고 생각하는 동안 서브에이전트는 병렬로 작업한다.
 
-### 2. Spawn sub-agents
+### 2. 서브에이전트에 설계 위임
 
-Spawn 3+ sub-agents in parallel. Each must produce a **radically different** interface for the deepened module.
+서브에이전트 세 명 이상을 병렬로 실행한다. 각 담당자는 새 모듈에 대해 방향이 뚜렷하게 다른 인터페이스를 설계한다.
 
-Prompt each sub-agent with a separate technical brief (file paths, coupling details, dependency category from [DEEPENING.md](DEEPENING.md), what sits behind the seam). The brief is independent of the user-facing problem-space explanation in Step 1. Give each agent a different design constraint:
+각 담당자에게 파일 경로, 결합 관계, [모듈 심화](DEEPENING.md)의 의존성 분류, 교체 지점 안에 담을 기능을 전달한다. 이 기술 설명은 첫 단계에서 사용자에게 한 설명과 별도로 구성한다. 담당자마다 다른 설계 제약을 준다.
 
-- Agent 1: "Minimize the interface: aim for 1–3 entry points max. Maximise leverage per entry point."
-- Agent 2: "Maximise flexibility: support many use cases and extension."
-- Agent 3: "Optimise for the most common caller: make the default case trivial."
-- Agent 4 (if applicable): "Design around ports & adapters for cross-seam dependencies."
+- 첫 담당자는 인터페이스를 최소화한다. 진입점을 최대 하나에서 세 개로 제한하고 진입점마다 제공하는 효용을 높인다.
+- 둘째 담당자는 유연성을 높인다. 다양한 사용 상황과 확장을 지원한다.
+- 셋째 담당자는 가장 흔한 호출자에 맞춘다. 기본 사용이 단순하도록 만든다.
+- 필요한 경우 넷째 담당자는 교체 지점 너머의 의존성을 연결 인터페이스와 어댑터 중심으로 설계한다.
 
-Include both [SKILL.md](SKILL.md) vocabulary and GLOSSARY.md vocabulary in the brief so each sub-agent names things consistently with the architecture language and the project's domain language.
+[코드베이스 설계](SKILL.md)의 용어와 프로젝트의 용어집 `GLOSSARY.md`를 전달해 설계 용어와 도메인 용어를 일관되게 사용하도록 한다.
 
-Each sub-agent outputs:
+각 담당자는 다음을 반환한다.
 
-1. Interface (types, methods, params, plus invariants, ordering, error modes)
-2. Usage example showing how callers use it
-3. What the implementation hides behind the seam
-4. Dependency strategy and adapters (see [DEEPENING.md](DEEPENING.md))
-5. Trade-offs: where leverage is high, where it's thin
+1. 타입·메서드·매개변수와 항상 지켜야 할 조건·호출 순서·오류 방식을 포함한 인터페이스
+2. 호출자가 사용하는 모습을 보여 주는 예시
+3. 교체 지점 내부에 감추는 구현 내용
+4. [모듈 심화](DEEPENING.md)에 따른 의존성 처리와 어댑터
+5. 효용이 높은 부분과 낮은 부분, 설계의 장단점
 
-### 3. Present and compare
+### 3. 설계안 설명과 비교
 
-Present designs sequentially so the user can absorb each one, then compare them in prose. Contrast by **depth** (leverage at the interface), **locality** (where change concentrates), and **seam placement**.
+사용자가 각 설계를 이해할 수 있도록 하나씩 설명한 뒤 비교한다. 깊이, 변경이 모이는 위치, 교체 지점의 위치를 기준으로 살핀다.
 
-After comparing, give your own recommendation: which design you think is strongest and why. If elements from different designs would combine well, propose a hybrid. Be opinionated: the user wants a strong read, not a menu.
+가장 적합하다고 판단한 설계와 이유를 추천한다. 서로 다른 설계의 요소를 함께 쓰는 편이 좋다면 결합안을 제안한다. 선택지만 나열하지 말고 근거 있는 판단을 제시한다.

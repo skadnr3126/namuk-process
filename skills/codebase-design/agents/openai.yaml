@@ -1,3 +1,3 @@
 interface:
-  display_name: "Codebase Design"
-  short_description: "Vocabulary for deep-module design"
+  display_name: "코드베이스 설계"
+  short_description: "깊은 모듈의 설계와 구현에 공통 용어와 판단 기준을 적용합니다."
