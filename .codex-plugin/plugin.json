@@ -1,18 +1,18 @@
 {
   "name": "namuk-process",
   "version": "0.1.0",
-  "description": "Structure development work from request through implementation and verification.",
+  "description": "Validate user requests against intent, project context, and desired outcomes.",
   "author": {
     "name": "Local developer"
   },
   "skills": "./skills/",
   "interface": {
     "displayName": "Namuk Process",
-    "shortDescription": "A clear workflow for development tasks.",
-    "longDescription": "Helps break development requests into repository inspection, focused changes, and appropriate verification.",
+    "shortDescription": "Help turn intent into actionable requests.",
+    "longDescription": "Checks request clarity, relevant code and environment context, and alignment between the requested action and the user's goal. Uses only the checks needed for the situation.",
     "developerName": "Local developer",
     "category": "Productivity",
     "capabilities": [],
-    "defaultPrompt": "Structure this development task with Namuk Process."
+    "defaultPrompt": "Check this request for clarity, project context, and alignment with my goal."
   }
 }
