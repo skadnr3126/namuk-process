@@ -6,15 +6,22 @@
 
 | 스킬 | 사용 시점과 기능 | 책임에서 제외되는 일 | 전달 결과 |
 |---|---|---|---|
+| [development-workflow](skills/development-workflow/SKILL.md) | 일반 프로젝트의 의도·완료 기준 정리, 필요한 요청 검증 선택, 설계·구현, 완료 기준에 따른 결과 검증을 연결 | 단순 설명, 설계·검토만 요청한 작업의 코드 수정, Namuk Process 자체 개선 절차 | 정리된 요청과 완료 기준, 설계와 실제 변경, 기준별 충족 여부·근거·한계 |
 | [verify-request-clarity](skills/verify-request-clarity/SKILL.md) | 새 설계나 모호한 피드백에서 다음 행동에 필요한 최소 정보를 확인 | 깊은 코드 조사, 구현, 이미 명확한 요청의 재확인 | 이해한 결과·다음 행동과 부족한 정보·질문 |
 | [verify-request-context](skills/verify-request-context/SKILL.md) | 요청을 관련 코드·환경·설계와 대조해 전제·실행 가능성·영향을 확인 | 구현, 사용자 목표의 재설정 | 확인 사실·근거·제약과 실행 전에 필요한 결정 |
 | [verify-request-alignment](skills/verify-request-alignment/SKILL.md) | 요청한 수단이 문제와 원하는 결과에 연결되는지 점검 | 목표의 임의 변경, 작은 수정의 반복 재심사, 구현 | 목표와 수단의 연결, 검토할 문제·대안과 필요한 결정 |
-| [codebase-design](skills/codebase-design/SKILL.md) | 일반 프로젝트의 모듈·인터페이스·의존성·테스트 설계에 공통 용어와 깊은 모듈의 판단 기준을 적용 | 전체 코드베이스의 탐색·선택·구현을 끝까지 관리 | 설계 기준, 인터페이스·의존성·테스트 방향과 대안 비교 |
+| [codebase-design](skills/codebase-design/SKILL.md) | 일반 프로젝트의 설계와 코드 작성에 모듈·인터페이스·의존성·테스트의 공통 용어와 깊은 모듈의 판단 기준을 적용 | 전체 코드베이스의 탐색·선택·구현을 끝까지 관리 | 설계 기준, 인터페이스·의존성·테스트 방향과 대안 비교 |
 | [improve-codebase-architecture](skills/improve-codebase-architecture/SKILL.md) | 명시적으로 호출해 일반 프로젝트의 목표와 코드 맥락을 확인하고, 위임 범위 안에서 유효한 구조 개선을 선택해 설계·수정·검증 | 검토·조언만 요청했을 때 코드 수정, Namuk Process 자체 개선의 독립 검증·PR 제출 | 선택한 개선과 실제 변경·검증 결과·한계, 개선 근거가 없으면 조사 결과 |
 | [reflect](skills/reflect/SKILL.md) | 대화·사용 경험에서 개선 근거를 찾아 기존 지침을 수정·삭제하고, 별도 제한이 없으면 검증과 PR 제출까지 관리 | 새 스킬의 직접 작성, 독립 검증, 직접 PR 제출 | 변경과 검증 결과, 제출 담당의 완료 결과 |
 | [namuk-skillcreator](skills/namuk-skillcreator/SKILL.md) | 새 스킬의 필요성을 판단하고 작게 설계·작성. 분리 생성에 필요한 기존 경계도 조정 | 일반적인 기존 스킬 수정, 자체 개선 판정, 직접 PR 제출 | 새 스킬·생성 이유·갱신된 기능 문서·검증 결과 |
 | [verify-improvement](skills/verify-improvement/SKILL.md) | 동작을 바꾸는 AI 변경을 분리된 환경에서 블라인드 비교하고 [평가 지침](skills/verify-improvement/references/evaluation-agent.md)을 적용 | 의미와 동작이 그대로인 표현 수정의 비교, 소스 수정·change 삭제·병합·PR 제출 | 관찰 근거·판정·한계; 후속 작업은 공통 변경 절차를 적용 |
 | [submit-improvement](skills/submit-improvement/SKILL.md) | 개선 판정의 커밋을 push하고 draft PR 제출 후 main으로 복귀 | 개선 설계·수정, 검증 결과 작성, 자동 병합·설치 업데이트 | 확인된 PR 링크 또는 제출 장애 |
+
+## 일반 프로젝트의 작업 흐름
+
+[development-workflow](skills/development-workflow/SKILL.md)가 사용자 의도와 완료 기준 정리, 필요한 요청 검증, codebase-design에 따른 설계·구현, 처음의 완료 기준에 따른 결과 검증을 연결한다. 세부 절차는 해당 스킬이 소유한다. 작은 수정은 기존 맥락을 재사용해 짧게 진행하며, 설계·검토 요청은 해당 산출물까지만 수행한다.
+
+요청 검증 스킬은 불확실한 부분을 판단하고, codebase-design은 첫 설계와 이후 구현의 기준을 제공한다. 결과 검증은 요청 당시 완료 기준과 실제 관찰 근거를 대조한다. 일반 프로젝트의 결과 검증에 플러그인 자체 개선용 verify-improvement나 PR 제출 절차를 적용하지 않는다.
 
 ## 사용자 요청 검증 선택
 
@@ -33,7 +40,7 @@
 
 ## 코드베이스 설계와 개선
 
-`codebase-design`은 일반 프로젝트의 설계 기준을 제공한다. `improve-codebase-architecture`는 사용자가 코드 개선을 위임하고 목표와 실제 코드 맥락이 충분하면 개선 대상을 직접 골라 설계·수정·검증까지 관리한다. 결과 방향을 바꿀 사용자 결정이 빠졌을 때만 해당 결정을 질문한다. 필요한 요청 검증만 재사용하며 별도 인터뷰 스킬이나 후보 선택 단계를 요구하지 않는다. 검토·조언만 요청받았다면 조사 결과를 반환하고 코드를 수정하지 않는다.
+`codebase-design`은 일반 프로젝트의 설계와 이후 코드 작성의 기준을 제공한다. `improve-codebase-architecture`는 사용자가 코드 개선을 위임하고 목표와 실제 코드 맥락이 충분하면 개선 대상을 직접 골라 설계·수정·검증까지 관리한다. 결과 방향을 바꿀 사용자 결정이 빠졌을 때만 해당 결정을 질문한다. 필요한 요청 검증만 재사용하며 별도 인터뷰 스킬이나 후보 선택 단계를 요구하지 않는다. 검토·조언만 요청받았다면 조사 결과를 반환하고 코드를 수정하지 않는다.
 
 Namuk Process 자체를 바꾸는 작업은 아래 플러그인 개선 절차를 따른다. 일반 프로젝트의 구조 개선에 플러그인 검증·제출 절차를 적용하지 않는다.
 
