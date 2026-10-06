@@ -20,13 +20,15 @@
 
 ## 번들 훅
 
-[훅 설정](hooks/hooks.json)은 `UserPromptSubmit`에서 `request-to-implementation`, `SubagentStart`에서 `codebase-design`을 주입합니다. [주입 스크립트](hooks/inject-skill.cjs)가 설치된 플러그인의 스킬 원문을 읽으므로 훅에 판단 규칙을 복사하지 않습니다. 모든 서브에이전트 시작에 설계 스킬을 전달하고 실제 위임 역할에 따라 구현·문서 갱신 책임을 적용합니다. 문서 갱신은 에이전트의 완료 절차이며 종료 훅이 자동으로 파일을 수정하지 않습니다.
+[훅 설정](hooks/hooks.json)은 `UserPromptSubmit`에서 `request-to-implementation`, `SubagentStart`에서 `codebase-design`을 주입합니다. [주입 스크립트](hooks/inject-skill.cjs)가 설치된 플러그인의 스킬 원문에서 BOM·YAML frontmatter를 제외한 본문을 읽으므로 훅에 판단 규칙을 복사하지 않습니다. 모든 서브에이전트 시작에 설계 스킬을 전달하고 실제 위임 역할에 따라 구현·문서 갱신 책임을 적용합니다. 문서 갱신은 에이전트의 완료 절차이며 종료 훅이 자동으로 파일을 수정하지 않습니다.
 
-Node.js가 실행 환경의 PATH에 있어야 합니다. POSIX와 Windows 명령을 각각 제공합니다. 실행 위치와 플러그인 경로의 공백에 의존하지 않으며, 상대 문서 링크를 해석할 스킬 원본 경로도 전달합니다. `additionalContextLimit`은 원문이 기본 출력 한도로 잘리는 것을 줄이기 위해 20000으로 지정했습니다. 스킬이 커지면 이 한도를 다시 검토해야 합니다.
+Node.js가 실행 환경의 PATH에 있어야 합니다. 하나의 `node -e` 명령이 `process.env.PLUGIN_ROOT`로 스크립트를 찾으므로 셸별 환경변수 문법과 별도 Windows 래퍼가 필요하지 않습니다. 등록된 이벤트를 고정 명령 인자로 전달하고 stdin을 읽지 않아 입력 파이프가 열려 있어도 종료합니다. 상대 문서 링크를 해석할 스킬 원본 경로도 전달합니다. `additionalContextLimit`은 본문이 기본 출력 한도로 잘리는 것을 줄이기 위해 20000으로 지정했습니다. 스킬이 커지면 이 한도를 다시 검토해야 합니다.
+
+[Ponytail의 훅 명령](https://github.com/dietrichgebert/ponytail/blob/main/hooks/claude-codex-hooks.json), [본문 주입](https://github.com/dietrichgebert/ponytail/blob/main/hooks/ponytail-instructions.js), [서브에이전트 주입](https://github.com/dietrichgebert/ponytail/blob/main/hooks/ponytail-subagent.js)을 비교해 환경변수를 Node에서 읽는 명령, frontmatter 제외, 불필요한 stdin 대기 제거를 반영했습니다. 현재 이벤트 두 개와 Codex 출력 형식은 유지합니다. 동작·검증 근거는 [스킬 주입 기능 문서](docs/features/skill-injection.md)에 기록합니다.
 
 로컬 번들 구현과 스크립트 검증을 완료해도 현재 설치본에서 자동 주입이 활성화됐다는 뜻은 아닙니다. 설치본에 변경을 반영하고 `/hooks`에서 현재 정의를 검토·신뢰한 뒤 실제 이벤트 실행을 확인해야 합니다. 설치·활성화만으로 훅을 신뢰하지 않는 동작과 출력 형식은 [공식 훅 문서](https://learn.chatgpt.com/docs/hooks)를 따릅니다. 검증·독립 리뷰 훅은 포함하지 않았습니다.
 
-로컬 검증은 저장소 루트에서 `node --test hooks/inject-skill.test.cjs`로 실행합니다. 실제 스크립트를 다른 작업 위치와 공백이 있는 설치 경로에서 실행하고, 두 이벤트의 원문 주입, 잘못된 입력, 누락된 스킬과 manifest 연결을 확인합니다.
+로컬 검증은 저장소 루트에서 `node --test hooks/inject-skill.test.cjs`로 실행합니다. 실제 스크립트를 다른 작업 위치와 공백·한글이 있는 설치 경로에서 실행하고, 두 이벤트의 본문 주입, 잘못된 이벤트 인자, 누락된 스킬, 열린 입력 파이프와 manifest 연결을 확인합니다.
 
 상세 판단 기준은 [요청 검증](skills/verify-request/SKILL.md)에 모았습니다. 명확성, 실제 맥락과의 적합성, 목표와 수단의 연결을 필요한 범위에서 확인합니다.
 
