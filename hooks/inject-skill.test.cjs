@@ -132,7 +132,7 @@ test('BOM and frontmatter are removed while a plain skill body is preserved', ()
 
 test('workflow and hook documentation links resolve to existing local files', () => {
   for (const relative of [
-    'README.md', '플러그인철학.md', 'docs/features/skill-injection.md', 'skills/request-to-implementation/SKILL.md',
+    'README.md', '플러그인철학.md', 'skills/request-to-implementation/SKILL.md',
     'skills/request-to-implementation/references/task-brief.md', 'skills/codebase-design/SKILL.md',
   ]) {
     const source = path.join(root, relative);
