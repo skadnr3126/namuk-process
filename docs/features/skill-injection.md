@@ -2,6 +2,8 @@
 
 `UserPromptSubmit`은 메인에게 `request-to-implementation`, `SubagentStart`는 모든 서브에이전트에게 `codebase-design`을 전달한다. 구현·문서 갱신 책임은 실제 작업 명세의 역할에 따라 적용한다.
 
+훅 실행 중 상태 메시지는 각각 `Loading request-to-implementation...`, `Loading codebase-design...`로 표시한다.
+
 ## 실행과 코드
 
 [manifest](../../.codex-plugin/plugin.json)가 [훅 설정](../../hooks/hooks.json)을 연결한다. 각 등록 명령은 Node에서 `PLUGIN_ROOT`를 읽어 [주입 스크립트](../../hooks/inject-skill.cjs)를 불러오고 고정 이벤트 인자를 전달한다. 스크립트는 자기 설치 위치에서 스킬을 읽고 BOM과 닫힌 YAML frontmatter를 제외한 본문을 `hookSpecificOutput.additionalContext`로 반환한다. 이벤트 이름도 동일 출력에 포함한다. 원본 파일·폴더 경로를 함께 전달해 상대 참조를 읽을 수 있게 한다.

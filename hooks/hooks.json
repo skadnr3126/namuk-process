@@ -3,6 +3,7 @@
     "UserPromptSubmit": [{
       "hooks": [{
         "type": "command",
+        "statusMessage": "Loading request-to-implementation...",
         "command": "node -e \"require(require('node:path').join(process.env.PLUGIN_ROOT,'hooks/inject-skill.cjs'))\" UserPromptSubmit",
         "timeout": 10,
         "additionalContextLimit": 20000
@@ -11,6 +12,7 @@
     "SubagentStart": [{
       "hooks": [{
         "type": "command",
+        "statusMessage": "Loading codebase-design...",
         "command": "node -e \"require(require('node:path').join(process.env.PLUGIN_ROOT,'hooks/inject-skill.cjs'))\" SubagentStart",
         "timeout": 10,
         "additionalContextLimit": 20000
