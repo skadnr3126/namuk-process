@@ -1,5 +1,0 @@
-interface:
-  display_name: "코드베이스 구조 개선"
-  short_description: "위임받은 범위에서 유효한 구조 개선을 골라 설계·구현·검증합니다."
-policy:
-  allow_implicit_invocation: false
