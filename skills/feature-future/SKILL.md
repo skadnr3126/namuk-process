@@ -1,3 +1,8 @@
+---
+name: feature-future
+description: 기능 구현 사이사이에 실행되어 개발자의 코드베이스 통제력을 높힌다.
+---
+
 # 최종 산출물 — Feature Review HTML
 
 ## 1. 산출물의 목적
