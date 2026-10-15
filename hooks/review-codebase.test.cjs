@@ -16,6 +16,13 @@ function run(input, executable = script) {
   return spawnSync(process.execPath, [executable], { encoding: 'utf8', input: typeof input === 'string' ? input : JSON.stringify(input) });
 }
 
+function configuredScript(skills) {
+  const original = fs.readFileSync(script, 'utf8');
+  const declaration = /const reviewSkills\s*=\s*\[[\s\S]*?\];/;
+  assert.match(original, declaration);
+  return original.replace(declaration, `const reviewSkills = ${JSON.stringify(skills)};`);
+}
+
 test('registered stop command reviews once through shell pipes outside the installed plugin', () => {
   const temp = fs.mkdtempSync(path.join(os.tmpdir(), 'namuk stop hooks '));
   try {
@@ -23,7 +30,11 @@ test('registered stop command reviews once through shell pipes outside the insta
     for (const relative of ['hooks/review-codebase.cjs', 'skills/codebase-design/SKILL.md']) {
       const destination = path.join(installed, relative);
       fs.mkdirSync(path.dirname(destination), { recursive: true });
-      fs.copyFileSync(path.join(root, relative), destination);
+      if (relative === 'hooks/review-codebase.cjs') {
+        fs.writeFileSync(destination, configuredScript(['codebase-design']));
+      } else {
+        fs.copyFileSync(path.join(root, relative), destination);
+      }
     }
     const registration = config.hooks.SubagentStop[0];
     assert.equal(registration.matcher, undefined);
@@ -50,7 +61,7 @@ test('registered stop command reviews once through shell pipes outside the insta
           assert.equal(output.decision, 'block');
           const source = path.join(installed, 'skills/codebase-design/SKILL.md');
           assert.ok(output.reason.includes(source));
-          assert.match(output.reason, /원문을 다시 읽고/);
+          assert.match(output.reason, /모든 원문을 다시 읽고/);
           assert.ok(!output.reason.includes('description:'));
           assert.match(output.reason, /현재 담당자가 직접 수행/);
           assert.match(output.reason, /새 서브에이전트를 생성하거나 종료 훅을 직접 재호출하지 마라/);
@@ -90,7 +101,7 @@ test('active review allows stopping even if the canonical skill is unavailable',
   const temp = fs.mkdtempSync(path.join(os.tmpdir(), 'namuk stop guard '));
   try {
     const installedScript = path.join(temp, 'review-codebase.cjs');
-    fs.copyFileSync(script, installedScript);
+    fs.writeFileSync(installedScript, configuredScript(['codebase-design']));
     const result = run({ ...firstStop, stop_hook_active: true }, installedScript);
     assert.equal(result.status, 0, result.stderr);
     assert.deepEqual(JSON.parse(result.stdout), {});
@@ -110,7 +121,7 @@ test('reviews point to the canonical skill without embedding a stale copy or con
     fs.mkdirSync(path.join(temp, 'skills/codebase-design'), { recursive: true });
     const installedScript = path.join(temp, 'hooks/review-codebase.cjs');
     const source = path.join(temp, 'skills/codebase-design/SKILL.md');
-    fs.copyFileSync(script, installedScript);
+    fs.writeFileSync(installedScript, configuredScript(['codebase-design']));
     for (const body of ['# First current body\n', '# Updated current body\n']) {
       fs.writeFileSync(source, '\uFEFF---\r\nname: metadata\r\n---\r\n' + body);
       const result = run('\uFEFF' + JSON.stringify(firstStop), installedScript);
@@ -120,6 +131,63 @@ test('reviews point to the canonical skill without embedding a stale copy or con
       assert.ok(output.reason.includes(source));
       assert.ok(!output.reason.includes(body));
       assert.ok(!output.reason.includes('name: metadata'));
+    }
+  } finally {
+    fs.rmSync(temp, { recursive: true, force: true });
+  }
+});
+
+test('configured review skills all appear in the review and a missing extra skill fails without partial output', () => {
+  const temp = fs.mkdtempSync(path.join(os.tmpdir(), 'namuk multiple review skills '));
+  try {
+    fs.mkdirSync(path.join(temp, 'hooks'));
+    const installedScript = path.join(temp, 'hooks/review-codebase.cjs');
+    const skills = ['codebase-design', '추가 리뷰'];
+    fs.writeFileSync(installedScript, configuredScript(skills));
+    const sources = skills.map(skill => path.join(temp, 'skills', skill, 'SKILL.md'));
+    for (const source of sources) {
+      fs.mkdirSync(path.dirname(source), { recursive: true });
+      fs.writeFileSync(source, '# Current canonical skill\n');
+    }
+    const review = run(firstStop, installedScript);
+    assert.equal(review.status, 0, review.stderr);
+    const output = JSON.parse(review.stdout);
+    assert.equal(output.decision, 'block');
+    assert.match(output.reason, /모든 원문을 다시 읽고/);
+    for (const source of sources) {
+      assert.ok(output.reason.includes(`스킬 원문: ${source}`));
+      assert.ok(output.reason.includes(`상대 문서 기준 폴더: ${path.dirname(source)}`));
+    }
+    assert.ok(!output.reason.includes('# Current canonical skill'));
+
+    fs.unlinkSync(sources[1]);
+    const missing = run(firstStop, installedScript);
+    assert.equal(missing.status, 1);
+    assert.equal(missing.stdout, '');
+    assert.match(missing.stderr, /ENOENT/);
+    assert.ok(missing.stderr.includes(sources[1]));
+
+    const active = run({ ...firstStop, stop_hook_active: true }, installedScript);
+    assert.equal(active.status, 0, active.stderr);
+    assert.deepEqual(JSON.parse(active.stdout), {});
+  } finally {
+    fs.rmSync(temp, { recursive: true, force: true });
+  }
+});
+
+test('empty review lists and missing names fail clearly while active reviews still stop', () => {
+  const temp = fs.mkdtempSync(path.join(os.tmpdir(), 'namuk empty review skills '));
+  try {
+    const installedScript = path.join(temp, 'review-codebase.cjs');
+    for (const skills of [[], [''], ['   '], [null]]) {
+      fs.writeFileSync(installedScript, configuredScript(skills));
+      const result = run(firstStop, installedScript);
+      assert.equal(result.status, 1);
+      assert.equal(result.stdout, '');
+      assert.match(result.stderr, /Expected (at least one review skill|a review skill name)/);
+      const active = run({ ...firstStop, stop_hook_active: true }, installedScript);
+      assert.equal(active.status, 0, active.stderr);
+      assert.deepEqual(JSON.parse(active.stdout), {});
     }
   } finally {
     fs.rmSync(temp, { recursive: true, force: true });
