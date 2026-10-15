@@ -17,6 +17,14 @@
         "timeout": 10,
         "additionalContextLimit": 20000
       }]
+    }],
+    "SubagentStop": [{
+      "hooks": [{
+        "type": "command",
+        "statusMessage": "Reviewing codebase-design...",
+        "command": "node -e \"require(require('node:path').join(process.env.PLUGIN_ROOT,'hooks/review-codebase.cjs'))\"",
+        "timeout": 10
+      }]
     }]
   }
 }
