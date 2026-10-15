@@ -4,7 +4,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 
-const reviewSkills = ['codebase-design'];
+const reviewSkills = ['codebase-design','feature-future'];
 
 try {
   const input = JSON.parse(fs.readFileSync(0, 'utf8').replace(/^\uFEFF/, ''));
