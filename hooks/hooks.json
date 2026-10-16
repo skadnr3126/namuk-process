@@ -21,9 +21,9 @@
     "SubagentStop": [{
       "hooks": [{
         "type": "command",
-        "statusMessage": "Reviewing codebase-design...",
+        "statusMessage": "Waiting for independent code review...",
         "command": "node -e \"require(require('node:path').join(process.env.PLUGIN_ROOT,'hooks/review-codebase.cjs'))\"",
-        "timeout": 10
+        "timeout": 300
       }]
     }]
   }
