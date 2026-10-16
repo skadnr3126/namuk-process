@@ -1,4 +1,22 @@
 #!/usr/bin/env node
 'use strict';
-require('./injection.cjs').inject('SubagentStart', ['codebase-design', 'boundary-responsibility'],
-  '사용자가 정한 목적과 위임받은 작업 범위에 아래 설계 지침을 적용한다. 사용자 수나 미래 확장을 임의로 가정하지 않는다. 메인이 전달한 완료 기준 ID를 보존하고 실제 근거와 미해결 항목을 반환한다.\n\n');
+
+const fs = require('node:fs');
+const path = require('node:path');
+
+const skillNames = ["codebase-design","boundary-responsibility"];
+
+try {
+  const root = path.resolve(__dirname, '..');
+  const additionalContext = '이 서비스는 단순한 일회용이 아니라, 많은 사용자를 포함하게 될것이고, 그에 따른 설계가 중요하다. 코드베이스가 성숙하지 않은 시작단계라면 아래 스킬의 지침과 함께 설계에 대한 고민을 충분히 한 후 작업에 적용하고 준수하라.\n\n' + skillNames.map(skill => {
+    const source = path.join(root, 'skills', skill, 'SKILL.md');
+    const content = fs.readFileSync(source, 'utf8').replace(/^\uFEFF/, '').replace(/^---\r?\n[\s\S]*?\r?\n---(?:\r?\n|$)/, '');
+    return `스킬 원문: ${source}\n상대 문서 링크는 스킬 폴더 ${path.dirname(source)} 기준으로 해석하고 필요한 참조를 읽는다.\n\n${content}`;
+  }).join('\n\n');
+  process.stdout.write(JSON.stringify({
+    hookSpecificOutput: { hookEventName: 'SubagentStart', additionalContext },
+  }) + '\n');
+} catch (error) {
+  process.stderr.write(`namuk-process skill injection failed: ${error.message}\n`);
+  process.exitCode = 1;
+}
