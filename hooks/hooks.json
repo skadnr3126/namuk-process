@@ -1,30 +1,54 @@
 {
   "hooks": {
-    "UserPromptSubmit": [{
-      "hooks": [{
-        "type": "command",
-        "statusMessage": "Loading request-to-implementation...",
-        "command": "node -e \"require(require('node:path').join(process.env.PLUGIN_ROOT,'hooks/UserPromptSubmit.cjs'))\"",
-        "timeout": 10,
-        "additionalContextLimit": 20000
-      }]
-    }],
-    "SubagentStart": [{
-      "hooks": [{
-        "type": "command",
-        "statusMessage": "Loading codebase-design and boundary-responsibility...",
-        "command": "node -e \"require(require('node:path').join(process.env.PLUGIN_ROOT,'hooks/SubagentStart.cjs'))\"",
-        "timeout": 10,
-        "additionalContextLimit": 20000
-      }]
-    }],
-    "SubagentStop": [{
-      "hooks": [{
-        "type": "command",
-        "statusMessage": "Reviewing codebase-design...",
-        "command": "node -e \"require(require('node:path').join(process.env.PLUGIN_ROOT,'hooks/review-codebase.cjs'))\"",
-        "timeout": 10
-      }]
-    }]
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "statusMessage": "Loading request-to-implementation...",
+            "command": "node -e \"require(require('node:path').join(process.env.PLUGIN_ROOT,'hooks/UserPromptSubmit.cjs'))\"",
+            "timeout": 10,
+            "additionalContextLimit": 20000
+          }
+        ]
+      }
+    ],
+    "SubagentStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "statusMessage": "Loading codebase-design and boundary-responsibility...",
+            "command": "node -e \"require(require('node:path').join(process.env.PLUGIN_ROOT,'hooks/SubagentStart.cjs'))\"",
+            "timeout": 10,
+            "additionalContextLimit": 20000
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "statusMessage": "Checking review and completion evidence...",
+            "command": "node -e \"require(require('node:path').join(process.env.PLUGIN_ROOT,'hooks/review-codebase.cjs'))\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "command": "node -e \"require(require('node:path').join(process.env.PLUGIN_ROOT,'hooks/Stop.cjs'))\"",
+            "type": "command",
+            "statusMessage": "Checking completion evidence...",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
   }
 }
