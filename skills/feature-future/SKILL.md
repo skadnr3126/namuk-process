@@ -69,3 +69,8 @@ Kent Beck의 *Software Engineering in the Age of AI*, Prodacity 2026을 참고�
 발표는 effort·output·outcome·mission을 구별하고, 쉽게 세는 지표가 목적을 대신할 때의 왜곡을 짚는다. 미션은 측정과 기여 귀속이 어렵고 위기에서 가치가 드러나기도 한다. 기능 제공과 미래 변경의 선택권 사이에서 지연 비용을 고려하며, 사용 피드백과 학습으로 설계를 갱신한다.
 
 위의 대화 방식, 대안 비교와 다음 확인 지침은 이 관점을 미션·설계 고찰에 적용한 것이다. 발표자가 제시한 고정 절차나 완전한 사전 명세 방법으로 취급하지 않는다.
+
+## 참고할 스킬
+# 스킬사용
+[../codebase-design/SKILL.md](../codebase-design/SKILL.md)와 [../boundary-responsibility/SKILL.md](../boundary-responsibility/SKILL.md)
+에 코드설계에 대한 지침이 있다. 리뷰목적으로 사용하도록 해라
