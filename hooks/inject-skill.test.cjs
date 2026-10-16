@@ -17,12 +17,12 @@ test('manifest and event commands execute canonical skills from an unrelated cwd
   try {
     const installed = path.join(temp, 'plugin 한글 with spaces');
     fs.mkdirSync(installed);
-    for (const relative of ['hooks/inject-skill.cjs', 'skills/request-to-implementation/SKILL.md', 'skills/codebase-design/SKILL.md']) {
+    for (const relative of ['hooks/inject-skill.cjs', 'skills/request-to-implementation/SKILL.md', 'skills/codebase-design/SKILL.md', 'skills/boundary-responsibility/SKILL.md']) {
       const destination = path.join(installed, relative);
       fs.mkdirSync(path.dirname(destination), { recursive: true });
       fs.copyFileSync(path.join(root, relative), destination);
     }
-    for (const [event, skill] of Object.entries({ UserPromptSubmit: 'request-to-implementation', SubagentStart: 'codebase-design' })) {
+    for (const [event, expectedSkills] of Object.entries({ UserPromptSubmit: ['request-to-implementation'], SubagentStart: ['codebase-design', 'boundary-responsibility'] })) {
       const registration = config.hooks[event][0];
       assert.equal(registration.matcher, undefined);
       const hook = registration.hooks[0];
@@ -40,10 +40,12 @@ test('manifest and event commands execute canonical skills from an unrelated cwd
       assert.equal(result.stderr, '');
       const output = JSON.parse(result.stdout).hookSpecificOutput;
       assert.equal(output.hookEventName, event);
-      const source = path.join(installed, 'skills', skill, 'SKILL.md');
-      assert.ok(output.additionalContext.includes(source));
-      const canonicalBody = fs.readFileSync(source, 'utf8').split(/\r?\n---\r?\n/)[1];
-      assert.equal(output.additionalContext.split('\n\n').slice(1).join('\n\n'), canonicalBody);
+      for (const skill of expectedSkills) {
+        const source = path.join(installed, 'skills', skill, 'SKILL.md');
+        assert.ok(output.additionalContext.includes(source));
+        const canonicalBody = fs.readFileSync(source, 'utf8').replace(/^\uFEFF/, '').replace(/^---\r?\n[\s\S]*?\r?\n---(?:\r?\n|$)/, '');
+        assert.ok(output.additionalContext.includes(canonicalBody));
+      }
       assert.ok(!output.additionalContext.includes('description:'));
       assert.ok(!output.additionalContext.includes('UNTRUSTED_PROMPT_MARKER'));
       assert.ok(output.additionalContext.length < hook.additionalContextLimit);

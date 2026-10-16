@@ -15,7 +15,7 @@
 
 ## 번들 훅
 
-[훅 설정](hooks/hooks.json)은 `UserPromptSubmit`에서 `request-to-implementation`, `SubagentStart`에서 `codebase-design`을 주입합니다. [주입 스크립트](hooks/inject-skill.cjs)가 설치된 플러그인의 스킬 원문에서 BOM·YAML frontmatter를 제외한 본문을 읽으므로 훅에 판단 규칙을 복사하지 않습니다. 모든 서브에이전트 시작에 설계 스킬을 전달하고 실제 위임 역할에 따라 구현 책임을 적용합니다.
+[훅 설정](hooks/hooks.json)은 `UserPromptSubmit`에서 `request-to-implementation`, `SubagentStart`에서 `codebase-design`과 `boundary-responsibility`를 주입합니다. [주입 스크립트](hooks/inject-skill.cjs)가 설치된 플러그인의 스킬 원문에서 BOM·YAML frontmatter를 제외한 본문을 읽으므로 훅에 판단 규칙을 복사하지 않습니다. 모든 서브에이전트 시작에 설계·경계 책임 스킬을 함께 전달하고 실제 위임 역할에 따라 구현 책임을 적용합니다.
 
 `SubagentStop`의 [리뷰 스크립트](hooks/review-codebase.cjs)는 첫 종료에 `decision: "block"`과 리뷰 지시를 `reason`으로 반환합니다. 현재 담당자가 지정된 모든 스킬 원문을 다시 읽도록 각각의 절대경로와 상대 문서 기준 폴더를 전달합니다. 종료 지시는 기본 출력 한도 안에 두고 스킬 본문을 중복 출력하지 않습니다. 담당자가 자신이 맡은 실제 변경·호출부·인터페이스 검증 근거를 원문 및 명세와 대조하고, 권한과 소유 범위 안의 문제를 보완하도록 합니다. 읽기 조사·설명·리뷰 역할은 구현을 맡지 않았음을 짧게 보고합니다. 새 리뷰어는 생성하지 않습니다.
 
@@ -23,7 +23,7 @@
 
 리뷰로 이어진 종료는 stdin JSON의 `stop_hook_active: true`를 확인해 `{}`를 반환합니다. `continue: false`를 쓰지 않으므로 다른 훅의 종료 판단을 덮어쓰지 않습니다. 잘못된 JSON, 누락되거나 잘못된 이벤트 이름·불리언 플래그, 읽을 수 없는 원문은 stderr와 종료 코드 1로 알리고 차단 지시를 출력하지 않습니다. 이 훅은 담당자의 자체 리뷰를 한 번 요청하며, 실제 리뷰 수행이나 코드 정확성을 자동으로 판정하지 않습니다.
 
-시작 주입 중 상태 메시지는 각각 `Loading request-to-implementation...`, `Loading codebase-design...`이며 종료 리뷰는 `Reviewing codebase-design...`입니다. 주입 스크립트는 본문과 이벤트 이름을 `hookSpecificOutput.additionalContext` 및 `hookSpecificOutput.hookEventName`으로 반환합니다. 잘못되거나 누락된 이벤트 인자와 읽을 수 없는 스킬은 stderr와 종료 코드 1로 알리고 컨텍스트를 출력하지 않습니다.
+시작 주입 중 상태 메시지는 각각 `Loading request-to-implementation...`, `Loading codebase-design and boundary-responsibility...`이며 종료 리뷰는 `Reviewing codebase-design...`입니다. 주입 스크립트는 각 스킬의 본문을 순서대로 합쳐 이벤트 이름과 함께 `hookSpecificOutput.additionalContext` 및 `hookSpecificOutput.hookEventName`으로 반환합니다. 잘못되거나 누락된 이벤트 인자와 읽을 수 없는 스킬은 stderr와 종료 코드 1로 알리고 컨텍스트를 출력하지 않습니다.
 
 Node.js가 실행 환경의 PATH에 있어야 합니다. 하나의 `node -e` 명령이 `process.env.PLUGIN_ROOT`로 스크립트를 찾으므로 셸별 환경변수 문법과 별도 Windows 래퍼가 필요하지 않습니다. 시작 주입은 등록된 이벤트를 고정 명령 인자로 전달하고 stdin을 읽지 않아 입력 파이프가 열려 있어도 종료합니다. 종료 리뷰는 stdin JSON을 읽고 반복 방지 플래그를 확인하므로 입력 파이프가 닫혀야 합니다. `additionalContextLimit`은 시작 시 주입 본문이 기본 출력 한도로 잘리는 것을 줄이기 위해 20000으로 지정했습니다. 이 설정은 종료 리뷰의 `reason` 한도를 늘리지 않습니다. 스킬이 커지면 주입 한도를 다시 검토해야 합니다.
 

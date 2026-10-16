@@ -12,7 +12,7 @@
     "SubagentStart": [{
       "hooks": [{
         "type": "command",
-        "statusMessage": "Loading codebase-design...",
+        "statusMessage": "Loading codebase-design and boundary-responsibility...",
         "command": "node -e \"require(require('node:path').join(process.env.PLUGIN_ROOT,'hooks/inject-skill.cjs'))\" SubagentStart",
         "timeout": 10,
         "additionalContextLimit": 20000
