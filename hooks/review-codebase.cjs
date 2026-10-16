@@ -21,7 +21,7 @@ try {
       fs.readFileSync(source, 'utf8');
       return `스킬 원문: ${source}\n상대 문서 기준 폴더: ${path.dirname(source)}`;
     }).join('\n\n');
-    const reason = `종료 전 아래 리뷰스킬을 읽고 코드 리뷰를 1회 수행하라.리뷰는 현재 담당자가 직접 수행하라. 리뷰 결과, 보완 내용, 실행한 검사와 미확인 사항을 최종 응답에 포함하라.\n
+    const reason = `종료 전 아래 리뷰스킬을 읽고 코드 리뷰를 1회 수행하라.리뷰는 현재 담당자가 직접 수행하라. 특히 하나의 함수나 하나의 파일안에 많은 책임을 지는 것은 되도록이면 피한다. 리뷰 결과, 보완 내용, 실행한 검사와 미확인 사항을 최종 응답에 포함하라.\n
 ${sources}`;
     process.stdout.write(JSON.stringify({ decision: 'block', reason }) + '\n');
   }
