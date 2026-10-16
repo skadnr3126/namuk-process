@@ -17,7 +17,7 @@ test('manifest and event commands execute canonical skills from an unrelated cwd
   try {
     const installed = path.join(temp, 'plugin 한글 with spaces');
     fs.mkdirSync(installed);
-    for (const relative of ['hooks/inject-skill.cjs', 'skills/request-to-implementation/SKILL.md', 'skills/codebase-design/SKILL.md', 'skills/boundary-responsibility/SKILL.md']) {
+    for (const relative of ['hooks/UserPromptSubmit.cjs', 'hooks/SubagentStart.cjs', 'skills/request-to-implementation/SKILL.md', 'skills/codebase-design/SKILL.md', 'skills/boundary-responsibility/SKILL.md']) {
       const destination = path.join(installed, relative);
       fs.mkdirSync(path.dirname(destination), { recursive: true });
       fs.copyFileSync(path.join(root, relative), destination);
@@ -63,12 +63,15 @@ test('manifest and event commands execute canonical skills from an unrelated cwd
   }
 });
 
-test('missing or unsupported event arguments emit no developer context', () => {
-  for (const args of [[], ['Stop'], ['toString']]) {
-    const result = spawnSync(process.execPath, [path.join(__dirname, 'inject-skill.cjs'), ...args], { encoding: 'utf8', input: '{"hook_event_name":"UserPromptSubmit"}' });
-    assert.equal(result.status, 1);
-    assert.equal(result.stdout, '');
-    assert.match(result.stderr, /skill injection failed/);
+test('entrypoints emit their fixed event without arguments or stdin routing', () => {
+  for (const event of ['UserPromptSubmit', 'SubagentStart']) {
+    const otherEvent = event === 'UserPromptSubmit' ? 'SubagentStart' : 'UserPromptSubmit';
+    const result = spawnSync(process.execPath, [path.join(__dirname, event + '.cjs')], {
+      encoding: 'utf8', input: JSON.stringify({ hook_event_name: otherEvent }),
+    });
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(result.stderr, '');
+    assert.equal(JSON.parse(result.stdout).hookSpecificOutput.hookEventName, event);
   }
 });
 
@@ -76,12 +79,16 @@ test('a missing canonical skill fails visibly instead of injecting partial rules
   const temp = fs.mkdtempSync(path.join(os.tmpdir(), 'namuk missing skill '));
   try {
     fs.mkdirSync(path.join(temp, 'hooks'));
-    const script = path.join(temp, 'hooks/inject-skill.cjs');
-    fs.copyFileSync(path.join(__dirname, 'inject-skill.cjs'), script);
-    const result = spawnSync(process.execPath, [script, 'UserPromptSubmit'], { encoding: 'utf8' });
-    assert.equal(result.status, 1);
-    assert.equal(result.stdout, '');
-    assert.match(result.stderr, /ENOENT/);
+    fs.mkdirSync(path.join(temp, 'skills/codebase-design'), { recursive: true });
+    fs.writeFileSync(path.join(temp, 'skills/codebase-design/SKILL.md'), '# First skill must not be partially injected');
+    for (const event of ['UserPromptSubmit', 'SubagentStart']) {
+      const script = path.join(temp, 'hooks', event + '.cjs');
+      fs.copyFileSync(path.join(__dirname, event + '.cjs'), script);
+      const result = spawnSync(process.execPath, [script], { encoding: 'utf8' });
+      assert.equal(result.status, 1);
+      assert.equal(result.stdout, '');
+      assert.match(result.stderr, /ENOENT/);
+    }
   } finally {
     fs.rmSync(temp, { recursive: true, force: true });
   }
@@ -89,7 +96,7 @@ test('a missing canonical skill fails visibly instead of injecting partial rules
 
 test('injection exits while stdin remains open and ignores malformed payload', async () => {
   for (const event of ['UserPromptSubmit', 'SubagentStart']) {
-    const child = spawn(process.execPath, [path.join(__dirname, 'inject-skill.cjs'), event], { stdio: ['pipe', 'pipe', 'pipe'] });
+    const child = spawn(process.execPath, [path.join(__dirname, event + '.cjs')], { stdio: ['pipe', 'pipe', 'pipe'] });
     let stdout = '';
     let stderr = '';
     child.stdout.on('data', chunk => { stdout += chunk; });
@@ -112,20 +119,27 @@ test('injection exits while stdin remains open and ignores malformed payload', a
   }
 });
 
-test('BOM and frontmatter are removed while a plain skill body is preserved', () => {
+test('BOM and frontmatter are removed while plain skill bodies are preserved', () => {
   const temp = fs.mkdtempSync(path.join(os.tmpdir(), 'namuk skill body '));
   try {
     fs.mkdirSync(path.join(temp, 'hooks'));
-    fs.mkdirSync(path.join(temp, 'skills/request-to-implementation'), { recursive: true });
-    const script = path.join(temp, 'hooks/inject-skill.cjs');
-    const source = path.join(temp, 'skills/request-to-implementation/SKILL.md');
-    fs.copyFileSync(path.join(__dirname, 'inject-skill.cjs'), script);
-    for (const content of ['\uFEFF---\r\nname: metadata\r\n---\r\n# Body\r\nPreserve this.\r\n', '# Body\r\nPreserve this.\r\n']) {
-      fs.writeFileSync(source, content);
-      const result = spawnSync(process.execPath, [script, 'UserPromptSubmit'], { encoding: 'utf8' });
-      assert.equal(result.status, 0, result.stderr);
-      const context = JSON.parse(result.stdout).hookSpecificOutput.additionalContext;
-      assert.equal(context.split('\n\n').slice(1).join('\n\n'), '# Body\r\nPreserve this.\r\n');
+    const eventSkills = { UserPromptSubmit: ['request-to-implementation'], SubagentStart: ['codebase-design', 'boundary-responsibility'] };
+    for (const [event, skills] of Object.entries(eventSkills)) {
+      const script = path.join(temp, 'hooks', event + '.cjs');
+      fs.copyFileSync(path.join(__dirname, event + '.cjs'), script);
+      for (const frontmatter of [true, false]) {
+        const heading = event === 'SubagentStart' ? '아래 스킬의 지침을 위임받은 작업에 적용하고 준수하라.\n\n' : '';
+        const expected = heading + skills.map(skill => {
+          const source = path.join(temp, 'skills', skill, 'SKILL.md');
+          fs.mkdirSync(path.dirname(source), { recursive: true });
+          const body = '# ' + skill + '\r\nPreserve this.\r\n';
+          fs.writeFileSync(source, (frontmatter ? '\uFEFF---\r\nname: metadata\r\n---\r\n' : '') + body);
+          return '스킬 원문: ' + source + '\n상대 문서 링크는 스킬 폴더 ' + path.dirname(source) + ' 기준으로 해석하고 필요한 참조를 읽는다.\n\n' + body;
+        }).join('\n\n');
+        const result = spawnSync(process.execPath, [script], { encoding: 'utf8' });
+        assert.equal(result.status, 0, result.stderr);
+        assert.equal(JSON.parse(result.stdout).hookSpecificOutput.additionalContext, expected);
+      }
     }
   } finally {
     fs.rmSync(temp, { recursive: true, force: true });

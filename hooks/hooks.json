@@ -4,7 +4,7 @@
       "hooks": [{
         "type": "command",
         "statusMessage": "Loading request-to-implementation...",
-        "command": "node -e \"require(require('node:path').join(process.env.PLUGIN_ROOT,'hooks/inject-skill.cjs'))\" UserPromptSubmit",
+        "command": "node -e \"require(require('node:path').join(process.env.PLUGIN_ROOT,'hooks/UserPromptSubmit.cjs'))\"",
         "timeout": 10,
         "additionalContextLimit": 20000
       }]
@@ -13,7 +13,7 @@
       "hooks": [{
         "type": "command",
         "statusMessage": "Loading codebase-design and boundary-responsibility...",
-        "command": "node -e \"require(require('node:path').join(process.env.PLUGIN_ROOT,'hooks/inject-skill.cjs'))\" SubagentStart",
+        "command": "node -e \"require(require('node:path').join(process.env.PLUGIN_ROOT,'hooks/SubagentStart.cjs'))\"",
         "timeout": 10,
         "additionalContextLimit": 20000
       }]
