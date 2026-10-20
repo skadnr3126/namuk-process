@@ -3,6 +3,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const { reviewWithCodex } = require('./codex-review.cjs');
+const { loadSkill, checkBudget } = require('./skill-context.cjs');
 
 async function main() {
   if (process.env.NAMUK_PROCESS_REVIEW_CHILD === '1') return {};
@@ -12,8 +13,10 @@ async function main() {
   }
   // This only avoids another review request after the hook resumed the worker.
   if (input.stop_hook_active) return {};
-  const source = path.resolve(__dirname, '../skills/code-review/SKILL.md');
-  const skill = fs.readFileSync(source, 'utf8').replace(/^\uFEFF/, '');
+  const skills = checkBudget([
+    loadSkill('code-review', { frontmatter: true }),
+    loadSkill('codebase-design'),
+  ].join('\n\n'), 20000);
   const cwd = typeof input.cwd === 'string' ? path.resolve(input.cwd) : process.cwd();
   const context = {
     agent_id: input.agent_id, agent_type: input.agent_type,
@@ -27,10 +30,8 @@ async function main() {
 transcript가 없거나 읽지 못하면 마지막 응답과 실제 변경으로 확인한 범위 및 맥락 부족을 명시하라. 긴 transcript는 필요한 부분만 읽어라.
 새 에이전트나 종료 훅을 호출하지 마라. 발견사항, 근거 위치, 실행한 검증, 미확인 사항을 간결하게 반환하라.
 
-스킬 원문: ${source}
-상대 문서 기준 폴더: ${path.dirname(source)}
 <review-skill>
-${skill}
+${skills}
 </review-skill>
 
 작업 디렉터리: ${cwd}

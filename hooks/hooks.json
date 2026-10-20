@@ -1,30 +1,56 @@
 {
   "hooks": {
-    "UserPromptSubmit": [{
-      "hooks": [{
-        "type": "command",
-        "statusMessage": "Loading request-to-implementation...",
-        "command": "node -e \"require(require('node:path').join(process.env.PLUGIN_ROOT,'hooks/UserPromptSubmit.cjs'))\"",
-        "timeout": 10,
-        "additionalContextLimit": 20000
-      }]
-    }],
-    "SubagentStart": [{
-      "hooks": [{
-        "type": "command",
-        "statusMessage": "Loading codebase-design and boundary-responsibility...",
-        "command": "node -e \"require(require('node:path').join(process.env.PLUGIN_ROOT,'hooks/SubagentStart.cjs'))\"",
-        "timeout": 10,
-        "additionalContextLimit": 20000
-      }]
-    }],
-    "SubagentStop": [{
-      "hooks": [{
-        "type": "command",
-        "statusMessage": "Waiting for independent code review...",
-        "command": "node -e \"require(require('node:path').join(process.env.PLUGIN_ROOT,'hooks/review-codebase.cjs'))\"",
-        "timeout": 300
-      }]
-    }]
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "statusMessage": "Loading request workflow and codebase-design...",
+            "command": "node -e \"require(require('node:path').join(process.env.PLUGIN_ROOT,'hooks/UserPromptSubmit.cjs'))\"",
+            "timeout": 10,
+            "additionalContextLimit": 20000
+          }
+        ]
+      }
+    ],
+    "SubagentStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "statusMessage": "Loading codebase-design...",
+            "command": "node -e \"require(require('node:path').join(process.env.PLUGIN_ROOT,'hooks/SubagentStart.cjs'))\"",
+            "timeout": 10,
+            "additionalContextLimit": 20000
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "statusMessage": "Waiting for independent code review...",
+            "command": "node -e \"require(require('node:path').join(process.env.PLUGIN_ROOT,'hooks/review-codebase.cjs'))\"",
+            "timeout": 300
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "compact|resume|fork",
+        "hooks": [
+          {
+            "type": "command",
+            "statusMessage": "Restoring codebase-design...",
+            "command": "node -e \"require(require('node:path').join(process.env.PLUGIN_ROOT,'hooks/SessionStart.cjs'))\"",
+            "timeout": 10,
+            "additionalContextLimit": 20000
+          }
+        ]
+      }
+    ]
   }
 }

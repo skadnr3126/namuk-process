@@ -48,6 +48,8 @@ test('hook waits for CLI, injects current skill and worker context, and returns 
   assert.ok(captured.prompt.includes(fs.readFileSync(source, 'utf8').replace(/^\uFEFF/, '')));
   assert.ok(captured.prompt.includes(source));
   assert.ok(captured.prompt.includes(path.dirname(source)));
+  const { loadSkill } = require('./skill-context.cjs');
+  assert.ok(captured.prompt.includes(loadSkill('codebase-design')));
   assert.match(captured.prompt, /worker-1/);
   assert.match(captured.prompt, /context.jsonl/);
   assert.match(captured.prompt, /add\(2,3\)/);
@@ -95,20 +97,35 @@ test('installed hook reads the current canonical skill and blocks if it disappea
   const installed = path.join(f.directory, 'plugin with spaces');
   fs.mkdirSync(path.join(installed, 'hooks'), { recursive: true });
   fs.mkdirSync(path.join(installed, 'skills/code-review'), { recursive: true });
-  for (const name of ['review-codebase.cjs', 'codex-review.cjs']) {
+  for (const name of ['review-codebase.cjs', 'codex-review.cjs', 'skill-context.cjs']) {
     fs.copyFileSync(path.join(__dirname, name), path.join(installed, 'hooks', name));
   }
   const source = path.join(installed, 'skills/code-review/SKILL.md');
+  const design = path.join(installed, 'skills/codebase-design/SKILL.md');
+  fs.mkdirSync(path.dirname(design), { recursive: true });
+  fs.writeFileSync(design, '\uFEFF---\nname: codebase-design\ndescription: fixture\n---\n# Design 전체 본문\nend marker');
   for (const body of ['# First review 기준', '# Updated review 기준']) {
     fs.writeFileSync(source, body);
     const result = spawnSync(process.execPath, [path.join(installed, 'hooks/review-codebase.cjs')], { cwd: f.directory, input: JSON.stringify(firstStop), encoding: 'utf8', env: f.env });
     assert.equal(JSON.parse(result.stdout).decision, 'block');
     assert.ok(JSON.parse(fs.readFileSync(f.capture, 'utf8')).prompt.includes(body));
+    const prompt = JSON.parse(fs.readFileSync(f.capture, 'utf8')).prompt;
+    assert.ok(prompt.includes('# Design 전체 본문\nend marker'));
+    assert.ok(prompt.includes(design));
   }
   fs.unlinkSync(source);
   const missing = spawnSync(process.execPath, [path.join(installed, 'hooks/review-codebase.cjs')], { input: JSON.stringify(firstStop), encoding: 'utf8', env: f.env });
   assert.equal(JSON.parse(missing.stdout).decision, 'block');
   assert.match(JSON.parse(missing.stdout).reason, /ENOENT/);
+  fs.writeFileSync(source, '# Review restored');
+  fs.unlinkSync(f.capture);
+  for (const body of [null, '---\nname: empty\n---\n', 'x'.repeat(20001)]) {
+    if (body === null) fs.unlinkSync(design); else fs.writeFileSync(design, body);
+    const failure = spawnSync(process.execPath, [path.join(installed, 'hooks/review-codebase.cjs')], { input: JSON.stringify(firstStop), encoding: 'utf8', env: f.env });
+    assert.equal(JSON.parse(failure.stdout).decision, 'block');
+    assert.match(JSON.parse(failure.stdout).reason, /ENOENT|Empty skill body|exceeds/);
+    assert.equal(fs.existsSync(f.capture), false);
+  }
 });
 
 test('runner times out a hanging process and removes result directory', async t => {
