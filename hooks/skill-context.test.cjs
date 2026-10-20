@@ -6,6 +6,11 @@ const path = require('node:path');
 const { spawn, spawnSync } = require('node:child_process');
 const { test } = require('node:test');
 
+test('hook configuration registers only the supported start events', () => {
+  const config = JSON.parse(fs.readFileSync(path.join(__dirname, 'hooks.json'), 'utf8'));
+  assert.deepEqual(Object.keys(config.hooks).sort(), ['SessionStart', 'SubagentStart', 'UserPromptSubmit']);
+});
+
 function fixture(t) {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), '남욱 설치 경로 '));
   t.after(() => fs.rmSync(directory, { recursive: true, force: true }));
